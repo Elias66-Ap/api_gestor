@@ -11,7 +11,12 @@ class ProyectoController extends Controller
     // Mostrar todos los proyectos
     public function index()
     {
-        return response()->json(Proyecto::all(), 200);
+        $proyectos = Proyecto::with('tareas')->get();
+        
+        return response()->json([
+            'status' => 'success',
+            'proyectos' => $proyectos
+        ], 200);
     }
 
     // Crear un nuevo proyecto
@@ -56,6 +61,27 @@ class ProyectoController extends Controller
             'success' => 'Proyecto creado',
             'data' => $proyecto
         ], 201);
+    }
+
+    public function completarProyecto($id)
+    {
+        $proyecto = Proyecto::find($id);
+
+        if (!$proyecto) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Proyecto inexistente'
+            ], 404);
+        }
+
+        $proyecto->completado = 1;
+        $proyecto->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Proyecto completado',
+            'proyecto' => $proyecto
+        ], 202);
     }
 
     // Mostrar un proyecto específico

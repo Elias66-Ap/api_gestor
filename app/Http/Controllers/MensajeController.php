@@ -10,7 +10,11 @@ class MensajeController extends Controller
 {
     public function index()
     {
-        return response()->json(Mensaje::all());
+        $mensajes = Mensaje::with(['remitente', 'destinatario'])->get();
+        return response()->json([
+            'status' => 'success',
+            'mensaje' => $mensajes
+        ]);
     }
 
     public function mensajesRemitente($id){

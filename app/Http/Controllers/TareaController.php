@@ -153,6 +153,8 @@ class TareaController extends Controller
 
         $tarea->estado = $request->estado;
         $tarea->save();
+        
+        $tarea->refresh();
 
         if ($request->estado === 'Hecho') {
             $rendimiento = Rendimiento::firstOrCreate(

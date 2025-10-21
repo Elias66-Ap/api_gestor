@@ -18,6 +18,8 @@ class Proyecto extends Model
         'fecha_inicio',
         'fecha_entrega',
         'progreso',
+        'completado',
+        'fecha_completado',
         'id_creador'
     ];
 

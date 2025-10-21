@@ -20,6 +20,7 @@ class Tarea extends Model
         'prioridad',
         'fecha_creacion',
         'fecha_vencimiento',
+        'fecha_completado',
         'id_proyecto',
         'id_asignado'
     ];

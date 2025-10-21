@@ -28,10 +28,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::apiResource('usuarios', UsuarioController::class);
 Route::apiResource('perfiles', PerfilController::class);
+//proyectos
+Route::patch('/completar/proyecto/{id}', [ProyectoController::class, 'completarProyecto']);
 Route::apiResource('proyectos', ProyectoController::class);
 
-Route::get('tareas/activas', [TareaController::class, 'tareasActivas']);
-Route::get('tareas/completas', [TareaController::class, 'tareasCompletas']);
+//tareas
+Route::get('/tareas/activas', [TareaController::class, 'tareasActivas']);
+Route::get('/tareas/completas', [TareaController::class, 'tareasCompletas']);
 
 Route::apiResource('tareas', TareaController::class);
 Route::get('tareas/usuario/{id_asignado}', [TareaController::class, 'tareasUsuario']);
