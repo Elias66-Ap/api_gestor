@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ProyectoController extends Controller
 {
-    // Mostrar todos los proyectos
     public function index()
     {
         $proyectos = Proyecto::with('tareas')->get();
@@ -137,6 +136,15 @@ class ProyectoController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Proyecto eliminado correctamente'
+        ], 200);
+    }
+
+    public function totalProyectos(){
+        $total = Proyecto::where('completado', '=', 0)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $total
         ], 200);
     }
 }

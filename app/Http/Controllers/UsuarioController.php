@@ -135,4 +135,13 @@ class UsuarioController extends Controller
             "message" => 'Usuario eliminado'
         ]);
     }
+
+    public function totalUsuarios(){
+        $total = Usuario::all()->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $total
+        ],200);
+    }
 }

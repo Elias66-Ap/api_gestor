@@ -26,15 +26,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
+Route::get('/usuarios/total', [UsuarioController::class, 'totalUsuarios']);
 Route::apiResource('usuarios', UsuarioController::class);
 Route::apiResource('perfiles', PerfilController::class);
+
 //proyectos
 Route::patch('/completar/proyecto/{id}', [ProyectoController::class, 'completarProyecto']);
+Route::get('/proyecto/total', [ProyectoController::class, 'totalProyectos']);
 Route::apiResource('proyectos', ProyectoController::class);
 
 //tareas
-Route::get('/tareas/activas', [TareaController::class, 'tareasActivas']);
-Route::get('/tareas/completas', [TareaController::class, 'tareasCompletas']);
+Route::get('/dashboard/resumen', [TareaController::class, 'dashboardResumen']);
 
 Route::apiResource('tareas', TareaController::class);
 Route::get('tareas/usuario/{id_asignado}', [TareaController::class, 'tareasUsuario']);

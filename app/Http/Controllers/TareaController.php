@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Models\Usuario;
 use App\Models\Tarea;
+use App\Models\Proyecto;
 use App\Models\Rendimiento;
 use Illuminate\Support\Facades\Validator;
 
@@ -72,6 +75,8 @@ class TareaController extends Controller
         ], 201);
     }
 
+
+
     public function tareasUsuario($id_asignado)
     {
         $tareas = Tarea::where('id_asignado', $id_asignado)->get();
@@ -90,16 +95,75 @@ class TareaController extends Controller
         ], 200);
     }
 
-    public function tareasActivas(){
-        $tareas = Tarea::where('estado', '!=', 'Hecho')->count();
+
+    public function dashboardResumen()
+    {
+        $hoy = Carbon::today();
+        $inicioMes = Carbon::now()->startOfMonth();
+        $inicioSemana = Carbon::now()->startOfWeek();
+
+        // Usuarios
+        $usuariosTotales = Usuario::count();
+        $usuariosNuevosMes = Usuario::where('fecha_registro', '>=', $inicioMes)->count();
+
+        // Tareas
+        $tareasCompletas = Tarea::where('estado', 'Hecho')->count();
+        $tareasCompletasSemana = Tarea::where('estado', 'Hecho')
+            ->where('fecha_completado', '>=', $inicioSemana)
+            ->count();
+        $tareasPendientes = Tarea::where('estado', '!=', 'Hecho')->count();
+        $pendientesHoy = Tarea::where('estado', '!=', 'Hecho')->whereDate('fecha_creacion', $hoy)->count();
+        $pendientesAyer = Tarea::where('estado', '!=', 'Hecho')->whereDate('fecha_creacion', Carbon::yesterday())->count();
+        $diferenciaPendientes = $pendientesHoy - $pendientesAyer;
+
+        // Proyectos
+        $proActivos = Proyecto::where('completado', 0)->count();
+        $proCompletados = Proyecto::where('completado', 1)->count();
+        $proNuevosMes = Proyecto::where('fecha_inicio', '>=', $inicioMes)->count();
+        $proTerminadosMes = Proyecto::where('completado', 1)
+            ->where('fecha_completado', '>=', $inicioMes)
+            ->count();
+
+        // Productividad
+        $promedioRendimiento = round(Rendimiento::avg('rendimiento'), 2);
+        $rendimientoAnterior = round(
+            Rendimiento::whereMonth('fecha_registro', Carbon::now()->subMonth()->month)->avg('rendimiento'),
+            2
+        );
+        $cambioRendimiento = $rendimientoAnterior > 0
+            ? round($promedioRendimiento - $rendimientoAnterior, 2)
+            : 0;
 
         return response()->json([
             'status' => 'success',
-            'data' => $tareas
+            'data' => [
+                'usuarios' => [
+                    'total' => $usuariosTotales,
+                    'nuevos' => "+{$usuariosNuevosMes} este mes",
+                ],
+                'tareas' => [
+                    'pendientes' => $tareasPendientes,
+                    'activas' => $tareasCompletas + $tareasPendientes, // o según tu lógica
+                    'completas' => $tareasCompletas,
+                    'variacion_completas' => "+{$tareasCompletasSemana} semana",
+                    'diferencia_pendientes' => ($diferenciaPendientes >= 0 ? '+' : '') . $diferenciaPendientes . " hoy",
+                ],
+                'proyectos' => [
+                    'activos' => $proActivos,
+                    'nuevos' => "+{$proNuevosMes} nuevos",
+                    'completados' => $proCompletados,
+                    'variacion_completados' => "+{$proTerminadosMes} mes",
+                ],
+                'rendimiento' => [
+                    'promedio' => "{$promedioRendimiento}%",
+                    'cambio' => ($cambioRendimiento >= 0 ? '+' : '') . "{$cambioRendimiento}",
+                ]
+            ]
         ]);
     }
 
-    public function tareasCompletas(){
+    public function tareasCompletas()
+    {
         $tareas = Tarea::where('estado', '=', 'Hecho')->count();
 
         return response()->json([
@@ -153,7 +217,7 @@ class TareaController extends Controller
 
         $tarea->estado = $request->estado;
         $tarea->save();
-        
+
         $tarea->refresh();
 
         if ($request->estado === 'Hecho') {
@@ -162,7 +226,7 @@ class TareaController extends Controller
                 ['tar_total' => 0, 'tar_completadas' => 0, 'tar_tarde' => 0]
             );
 
-            $ahora = now(); 
+            $ahora = now();
             $fecha_vencimiento = \Carbon\Carbon::parse($tarea->fecha_vencimiento);
 
             if ($ahora->lessThanOrEqualTo($fecha_vencimiento)) {
