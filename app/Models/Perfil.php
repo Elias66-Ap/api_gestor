@@ -22,6 +22,9 @@ class Perfil extends Model
         'habilidades'
     ];
 
+    protected $primaryKey = 'id_usu';
+    //public $incrementing = false;
+    //protected $keyType = 'int';
     public $timestamps = false;
 
     public function usuario() {

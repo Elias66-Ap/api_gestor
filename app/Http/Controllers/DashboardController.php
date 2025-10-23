@@ -16,7 +16,7 @@ class DashboardController extends Controller
     public function dashboard()
     {
 
-        $hoy = Carbon::today();
+        $hoy = Carbon::today()->toDateString();
         $ayer = Carbon::yesterday();
         $estaSemana = Carbon::now()->startOfWeek();
         $esteMes = Carbon::now()->startOfMonth();
@@ -41,7 +41,7 @@ class DashboardController extends Controller
             ->where('completado', 0)->count();
         $proActivos = Proyecto::where('completado', 0)->count();
         $proCompletados = Proyecto::where('completado', 1)->count();
-        $proCompletadosMes = Proyecto::where('fecha_Completado', '>=', $esteMes)->count();
+        $proCompletadosMes = Proyecto::where('fecha_completado', '>=', $esteMes)->count();
 
         //Tareas
         $tareasTotal = Tarea::count();
@@ -49,7 +49,7 @@ class DashboardController extends Controller
         $tareasActivas = Tarea::where('estado', '!=', 'Hecho')->count();
         $tareasNuevas = Tarea::whereDate('fecha_creacion', $estaSemana)->count();
         $tareasPendientes = Tarea::where('estado', '=', 'Por hacer')->count();
-        $tarHechasHoy = Tarea::whereDate('fecha_completado', $hoy)->count();
+        $tareasHoy = Tarea::whereDate('fecha_completado', $ayer)->count();
 
         //Rendimiento
         $promedioRendimiento = round(Rendimiento::avg('rendimiento') * 100);
@@ -74,7 +74,7 @@ class DashboardController extends Controller
                     'activas' => $tareasActivas,
                     'nuevas' => "+{$tareasNuevas} esta semana",
                     'pendientes' => $tareasPendientes,
-                    'hoy' => "-{$tarHechasHoy} hoy"
+                    'hoy' => "-{$tareasHoy} hoy"
                 ],
                 'rendimiento' => [
                     'promedio' => $promedioRendimiento

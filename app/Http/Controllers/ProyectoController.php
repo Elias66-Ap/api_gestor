@@ -86,7 +86,7 @@ class ProyectoController extends Controller
     // Mostrar un proyecto específico
     public function show($id)
     {
-        $proyecto = Proyecto::find($id);
+        $proyecto = Proyecto::with('tareas')->find($id);
 
         if (!$proyecto) {
             return response()->json([
