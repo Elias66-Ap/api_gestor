@@ -14,7 +14,8 @@ class Usuario extends Model
         'correo',
         'rol',
         'passwordd',
-        'estado'
+        'tiene_perfil',
+        'estado',
     ];
     
     protected $hidden = ['passwordd'];

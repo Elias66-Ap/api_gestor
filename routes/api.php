@@ -9,7 +9,8 @@ use App\Http\Controllers\MensajeController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\MiembroProyectoController;
 use App\Http\Controllers\ContenidoController;
-
+use App\Http\Controllers\DashboardController;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,9 +37,12 @@ Route::patch('/completar/proyecto/{id}', [ProyectoController::class, 'completarP
 Route::get('/proyecto/total', [ProyectoController::class, 'totalProyectos']);
 Route::apiResource('proyectos', ProyectoController::class);
 
-//tareas
-Route::get('/dashboard/resumen', [TareaController::class, 'dashboardResumen']);
+//Dashboard
+Route::get('/dashboard/inicio', [DashboardController::class, 'dashboard']);
+Route::get('/usuarios/por/mes', [DashboardController::class, 'usuariosPorMes']);
+Route::get('/dashboard/proyectos', [DashboardController::class, 'proyectosChart']);
 
+//tareas
 Route::apiResource('tareas', TareaController::class);
 Route::get('tareas/usuario/{id_asignado}', [TareaController::class, 'tareasUsuario']);
 Route::get('tareas/proyecto/{id_pro}', [TareaController::class, 'tareasProyecto']);
