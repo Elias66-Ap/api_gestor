@@ -136,8 +136,31 @@ class UsuarioController extends Controller
         ]);
     }
 
-    public function totalUsuarios(){
-        $total = Usuario::all()->count();
+    public function lideres(){
+        $total = Usuario::with('perfil')->where('rol','=','Lider')->whereHas('perfil')->get();
+
+        if($total->isEmpty()){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No hay lideres'
+            ],422);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $total
+        ],200);
+    }
+
+    public function colaboradores(){
+        $total = Usuario::with('perfil')->where('rol','=','Colaborador')->whereHas('perfil')->get();
+
+        if($total->isEmpty()){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No hay colaboradores'
+            ],422);
+        }
 
         return response()->json([
             'status' => 'success',

@@ -27,8 +27,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-Route::get('/usuarios/total', [UsuarioController::class, 'totalUsuarios']);
+//Usuarios
+Route::get('/lideres', [UsuarioController::class, 'lideres']);
+Route::get('/colaboradores', [UsuarioController::class, 'colaboradores']);
 Route::apiResource('usuarios', UsuarioController::class);
 Route::apiResource('perfiles', PerfilController::class);
 

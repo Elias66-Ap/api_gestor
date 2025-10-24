@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Proyecto;
+use App\Models\Miembroproyecto;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -11,7 +13,7 @@ class ProyectoController extends Controller
     public function index()
     {
         $proyectos = Proyecto::with('tareas')->get();
-        
+
         return response()->json([
             'status' => 'success',
             'proyectos' => $proyectos
@@ -21,24 +23,19 @@ class ProyectoController extends Controller
     // Crear un nuevo proyecto
     public function store(Request $request)
     {
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'nombre' => 'required|string|max:255',
-                'descripcion' => 'nullable|string',
-                'fecha_inicio' => 'nullable|date',
-                'fecha_entrega' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:' . now(),
-                'progreso' => 'nullable|integer',
-                'id_creador' => 'required|nullable|integer',
-            ],
-            [
-                'nombre.required' => 'El campo nombre es obligatorio',
-                'nombre.max' => 'El nombre es muy largo',
-                'fecha_entrega.date_format' => 'Fecha con formato incorrecto',
-                'fecha_entrega.after_or_equal' => 'La fecha de vencimiento no puede ser anterior a hoy',
-                'id_creador.required' => 'L'
-            ]
-        );
+        // Validar datos del proyecto y usuarios
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'fecha_entrega' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:' . now(),
+            'id_creador' => 'required|integer',
+            'id_usuarios' => 'required|array|min:2',       // usuarios obligatorios
+            'id_usuarios.*' => 'required|integer|distinct',
+        ], [
+            'id_usuarios.required' => 'Debe seleccionar al menos dos usuarios',
+            'id_usuarios.*.required' => 'Usuario inválido',
+            'id_usuarios.*.distinct' => 'Usuarios duplicados',
+        ]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -47,7 +44,7 @@ class ProyectoController extends Controller
             ], 422);
         }
 
-
+        // Crear el proyecto
         $proyecto = Proyecto::create([
             'nombre' => $request->nombre,
             'descripcion' => $request->descripcion,
@@ -55,10 +52,27 @@ class ProyectoController extends Controller
             'id_creador' => $request->id_creador
         ]);
 
+        $miembrosCreados = [];
+
+        // Asignar usuarios al proyecto si vienen en la solicitud
+        if ($request->filled('id_usuarios')) {
+            foreach ($request->id_usuarios as $id_usuario) {
+                $usuario = Usuario::find($id_usuario);
+                if (!$usuario) continue;
+
+                $miembrosCreados[] = Miembroproyecto::create([
+                    'id_proyecto' => $proyecto->id,
+                    'id_usuario' => $id_usuario,
+                    'rol' => $usuario->rol,
+                ]);
+            }
+        }
+
         return response()->json([
             'status' => 'success',
-            'success' => 'Proyecto creado',
-            'data' => $proyecto
+            'message' => 'Proyecto creado con usuarios asignados',
+            'proyecto' => $proyecto,
+            'miembros' => $miembrosCreados
         ], 201);
     }
 
@@ -139,7 +153,8 @@ class ProyectoController extends Controller
         ], 200);
     }
 
-    public function totalProyectos(){
+    public function totalProyectos()
+    {
         $total = Proyecto::where('completado', '=', 0)->count();
 
         return response()->json([
