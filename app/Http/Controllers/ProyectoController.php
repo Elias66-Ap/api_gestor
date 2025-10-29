@@ -12,7 +12,8 @@ class ProyectoController extends Controller
 {
     public function index()
     {
-        $proyectos = Proyecto::with('tareas')->get();
+        $proyectos = Proyecto::with('tareas')
+        ->withCount('miembros')->get();
 
         return response()->json([
             'status' => 'success',

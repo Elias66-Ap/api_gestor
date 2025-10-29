@@ -13,14 +13,27 @@ class UsuarioController extends Controller
     public function index()
     {
         $usuarios = Usuario::with(['perfil', 'rendimiento'])
-        ->whereHas('perfil')
-        ->whereHas('rendimiento')
-        ->get();
+            ->whereHas('perfil')
+            ->whereHas('rendimiento')
+            ->where('rol', '!=', 'Administrador')
+            ->get();
 
         return response()->json([
             'status' => 'success',
             'data' => $usuarios
-        ]);
+        ]); 
+    }
+
+    public function cambiarRol(Request $request, $id){
+        $usuario = Usuario::find($id);
+
+        $usuario->rol = $request->rol;
+        $usuario->save();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $usuario
+        ], 200);
     }
 
     public function store(Request $request)
@@ -119,9 +132,9 @@ class UsuarioController extends Controller
 
     public function destroy($id)
     {
-        $usuario = Usuario::find($id );
+        $usuario = Usuario::find($id);
 
-        if(!$usuario){
+        if (!$usuario) {
             return response()->json([
                 'status' => 'error',
                 'errors' => "Usuario inexistente"
@@ -136,35 +149,37 @@ class UsuarioController extends Controller
         ]);
     }
 
-    public function lideres(){
-        $total = Usuario::with('perfil')->where('rol','=','Lider')->whereHas('perfil')->get();
+    public function lideres()
+    {
+        $total = Usuario::with('perfil')->where('rol', '=', 'Lider')->whereHas('perfil')->get();
 
-        if($total->isEmpty()){
+        if ($total->isEmpty()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'No hay lideres'
-            ],422);
+            ], 422);
         }
 
         return response()->json([
             'status' => 'success',
             'data' => $total
-        ],200);
+        ], 200);
     }
 
-    public function colaboradores(){
-        $total = Usuario::with('perfil')->where('rol','=','Colaborador')->whereHas('perfil')->get();
+    public function colaboradores()
+    {
+        $total = Usuario::with('perfil')->where('rol', '=', 'Colaborador')->whereHas('perfil')->get();
 
-        if($total->isEmpty()){
+        if ($total->isEmpty()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'No hay colaboradores'
-            ],422);
+            ], 422);
         }
 
         return response()->json([
             'status' => 'success',
             'data' => $total
-        ],200);
+        ], 200);
     }
 }

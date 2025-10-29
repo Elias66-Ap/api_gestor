@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //Usuarios
 Route::get('/lideres', [UsuarioController::class, 'lideres']);
 Route::get('/colaboradores', [UsuarioController::class, 'colaboradores']);
+Route::post('/completar-perfil/{id}', [PerfilController::class, 'completarPerfil']);
 Route::apiResource('usuarios', UsuarioController::class);
 Route::apiResource('perfiles', PerfilController::class);
 
@@ -59,3 +60,6 @@ Route::delete('/contenidos/{id}/eliminar', [ContenidoController::class, 'destroy
 
 Route::apiResource('mensajes', MensajeController::class);
 Route::apiResource('miembrosproyecto', MiembroProyectoController::class);
+
+Route::get('/mi-perfil/{id}', [PerfilController::class, 'miPerfil']);
+Route::patch('/editar-perfil/{id}', [PerfilController::class, 'editarPerfil']);

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Perfil;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Usuario;
 
 class PerfilController extends Controller
@@ -15,15 +16,25 @@ class PerfilController extends Controller
         return Perfil::all();
     }
 
-    public function store(Request $request)
+    public function miPerfil($id)
     {
-        $user = Auth::guard('usuario')->user();
+        $usuario = Usuario::with('perfil', 'rendimiento')->find($id);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $usuario
+        ], 200);
+    }
+
+    public function completarPerfil(Request $request, $id)
+    {
+        $user = Usuario::find($id);
 
         if (!$user) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Usuario no autenticado'
-            ], 401);
+            ], 402);
         }
 
         $validator = Validator::make($request->all(), [
@@ -33,8 +44,13 @@ class PerfilController extends Controller
             'telefono' => 'nullable|string|min:9',
             'fecha_nacimiento' => 'nullable|date',
             'hobby' => 'nullable|string',
-            'habilidades' => 'nullable|string',
+            'habilidades' => 'nullable|array',
+            'habilidades.*' => 'string|max:100',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'passwordd' => 'nullable|string|min:5|confirmed', 
+        ], [
+            'passwordd.min' => 'La contraseña debe tener al menos 5 caracteres.',
+            'passwordd.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
         if ($validator->fails()) {
@@ -57,19 +73,26 @@ class PerfilController extends Controller
             'telefono' => $request->telefono,
             'fecha_nacimiento' => $request->fecha_nacimiento,
             'hobby' => $request->hobby,
-            'habilidades' => $request->habilidades,
+            'habilidades' => $request->has('habilidades') ? implode(',', $request->habilidades) : null,
             'imagen' => $imagenPath,
         ]);
 
-        $user->estado = 1;
+        $user->tiene_perfil = 1;
+
+        if ($request->filled('passwordd')) {
+            $user->passwordd = Hash::make($request->passwordd);
+        }
+
         $user->save();
+        $user->refresh();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Perfil creado correctamente.',
+            'message' => 'Perfil creado correctamente' . ($request->filled('passwordd') ? ' y contraseña actualizada.' : '.'),
             'perfil' => $perfil
         ], 201);
     }
+
 
     public function show($id)
     {
@@ -77,7 +100,7 @@ class PerfilController extends Controller
         return response()->json($perfil);
     }
 
-    public function update(Request $request, $id)
+    public function editarPerfil(Request $request, $id)
     {
         $perfil = Perfil::where('id_usu', $id)->first();
 
@@ -88,6 +111,7 @@ class PerfilController extends Controller
             ], 404);
         }
 
+        // Validación
         $validator = Validator::make($request->all(), [
             'nombre' => 'sometimes|required|string|max:100',
             'apellido' => 'sometimes|string|max:200',
@@ -95,7 +119,8 @@ class PerfilController extends Controller
             'telefono' => 'sometimes|string|min:9',
             'fecha_nacimiento' => 'sometimes|date',
             'hobby' => 'sometimes|string',
-            'habilidades' => 'sometimes|string',
+            'habilidades' => 'sometimes|array',
+            'habilidades.*' => 'string|max:100',
             'imagen' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'nombre.required' => 'El nombre es obligatorio.',
@@ -120,27 +145,36 @@ class PerfilController extends Controller
             ], 422);
         }
 
-        $imagenPath = null;
+        // Procesar la imagen si se envía
         if ($request->hasFile('imagen')) {
             $imagenPath = $request->file('imagen')->store('perfil', 'public');
+            $perfil->imagen = $imagenPath;
         }
 
-        $perfil->update($request->only([
+        // Actualizar los demás campos
+        $perfil->fill($request->only([
             'nombre',
             'apellido',
             'apodo',
             'telefono',
             'fecha_nacimiento',
             'hobby',
-            'habilidades',
-            'imagen',
         ]));
+
+        // Si "habilidades" viene como array, convertir a JSON antes de guardar
+        if ($request->has('habilidades')) {
+            $perfil->habilidades = json_encode($request->habilidades);
+        }
+
+        $perfil->save();
 
         return response()->json([
             'status' => 'success',
+            'message' => 'Perfil actualizado correctamente.',
             'data' => $perfil
         ]);
     }
+
 
     public function destroy($id)
     {

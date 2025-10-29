@@ -18,4 +18,8 @@ class MiembroProyecto extends Model
     ];
 
     public $timestamps = false; 
+
+    public function miembros(){
+        return $this->belongsTo(Proyecto::class, 'id_proyecto');
+    }
 }

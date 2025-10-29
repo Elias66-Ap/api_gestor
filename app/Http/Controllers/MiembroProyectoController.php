@@ -51,6 +51,48 @@ class MiembroProyectoController extends Controller
         ], 201);
     }
 
+    public function agregarMiembros(Request $request, $idPro)
+    {
+        $validator = Validator::make($request->all(), [
+            'id_proyecto' => 'required|integer',
+            'id_usuarios' => 'required|array',
+            'id_usuarios.*' => 'integer|distinct',
+        ]);
+        
+        if($validator->fails()){
+            return response()->json([
+                'status' => 'success',
+                'error' => $validator->errors()
+            ],422);
+        }
+
+        $miembros = [];
+
+        foreach($request->id_usuario as $id){
+            $usuario = Usuario::find($id);
+            if(!$usuario) continue;
+
+            $miembros[] = MiembroProyecto::create([
+                'id_proyecto' => $idPro,
+                'id_usuario' => $id,
+                'rol' => $usuario->rol
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'miembros' => $miembros,
+        ]);
+    }
+    public function miembrosProyecto($id){
+        $miembros = MiembroProyecto::where('id_proyecto',$id)->first();
+
+        return response()->json([
+            'status' => 'success',
+            'miembros' => $miembros
+        ], 202);
+    }
+
 
     // Mostrar un miembro específico
     public function show($id)

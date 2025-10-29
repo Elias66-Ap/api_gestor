@@ -30,6 +30,10 @@ class Proyecto extends Model
         return $this->hasMany(Tarea::class, 'id_proyecto');
     }
 
+    public function miembros(){
+        return $this->hasMany(MiembroProyecto::class, 'id_proyecto');
+    }
+
     public function calcularProgreso()
     {
         $total = $this->tareas()->count();
