@@ -63,3 +63,6 @@ Route::apiResource('miembrosproyecto', MiembroProyectoController::class);
 
 Route::get('/mi-perfil/{id}', [PerfilController::class, 'miPerfil']);
 Route::patch('/editar-perfil/{id}', [PerfilController::class, 'editarPerfil']);
+
+//Mensajes
+Route::get('/mensajes-usuario/{id}', [MensajeController::class, 'mostrarMensajes']);

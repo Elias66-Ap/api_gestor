@@ -17,26 +17,25 @@ class MensajeController extends Controller
         ]);
     }
 
-    public function mensajesRemitente($id){
-        $mensaje = Mensaje::where('id_remitente', $id)->get();
-
-        if($mensaje->isEmpty()){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No se encontraron mensaje para este usuario',
-                'data' => []
-            ], 404);
-        }
+    public function mostrarMensajes($id)
+    {
+        $enviados = Mensaje::with('destinatario')->where('id_remitente', $id)->orderBy('fecha_envio', 'desc')->get();
+        $recibidos = Mensaje::with('remitente')->where('id_destinatario', $id)->orderBy('fecha_envio', 'desc')->get();
 
         return response()->json([
             'status' => 'success',
-            'mensajes' => $mensaje
+            'data' => [
+                'enviados' => $enviados,
+                'recibidos' => $recibidos
+            ],
         ], 200);
     }
-    public function mensajesUsuarios($idr, $idd){
-        $mensaje = Mensaje::where('id_remitente',  'id_destinatario', $idr,$idd)->get();
 
-        if($mensaje->isEmpty()){
+    public function mensajesUsuarios($idr, $idd)
+    {
+        $mensaje = Mensaje::where('id_remitente',  'id_destinatario', $idr, $idd)->get();
+
+        if ($mensaje->isEmpty()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'No se encontraron mensaje para este usuario',
@@ -55,13 +54,17 @@ class MensajeController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
+                'asunto' => 'required|string|max:200',
                 'contenido' => 'required|string',
                 'id_remitente' => 'required|integer',
-                'id_destinatario' => 'required|integer'
+                'id_destinatario' => 'required|array|min:1',
+                'id_destinatario.*' => 'integer|distinct',
             ],
             [
-                'contenido.required' => "Escribe algo",
-                'id_destinatario' => 'Mensaje sin destinatario'
+                'asunto.required' => "El campo asunto es obligatorio",
+                'contenido.required' => "No hay contenido en el mensaje",
+                'id_destinatario.required' => 'Mensaje sin destinatario',
+                'id_destinatario.min' => 'Debe haber al menos un destinatario'
             ]
         );
 
@@ -72,12 +75,21 @@ class MensajeController extends Controller
             ], 422);
         }
 
-        $mensaje = Mensaje::create($request->all());
+        $mensajes = [];
+
+        foreach ($request->id_destinatario as $ids) {
+            $mensajes = Mensaje::create([
+                'asunto' => $request->asunto,
+                'contenido' => $request->contenido,
+                'id_remitente' => $request->id_remitente,
+                'id_destinatario' => $ids
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
             'success' => 'Mensaje enviado',
-            'mensaje' => $mensaje
+            'mensaje' => $mensajes
         ], 201);
     }
 
@@ -130,6 +142,7 @@ class MensajeController extends Controller
         $mensaje->delete();
         return response()->json([
             'status' => 'success',
-            'message' => 'Mensaje eliminado correctamente']);
+            'message' => 'Mensaje eliminado correctamente'
+        ]);
     }
 }

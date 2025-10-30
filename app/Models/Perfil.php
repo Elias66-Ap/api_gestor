@@ -27,7 +27,18 @@ class Perfil extends Model
     //protected $keyType = 'int';
     public $timestamps = false;
 
-    public function usuario() {
+    public function usuario()
+    {
         return $this->belongsTo(Usuario::class, 'id_usu');
+    }
+
+    public function mensajesEnviados()
+    {
+        return $this->hasMany(Mensaje::class, 'id_remitente');
+    }
+
+    public function mensajesRecibidos()
+    {
+        return $this->hasMany(Mensaje::class, 'id_destinatario');
     }
 }

@@ -9,21 +9,23 @@ class Mensaje extends Model
 {
     use HasFactory;
 
-    protected $table = 'MENSAJE';
+    protected $table = 'mensaje';
     protected $fillable = [
+        'asunto',
         'contenido',
+        'visto',
         'fecha_envio',
         'id_remitente',
         'id_destinatario'
     ];
 
-    public $timestamps = false; 
+    public $timestamps = false;
 
     public function remitente() {
-        return $this->belongsTo(Usuario::class, 'id_remitente');
+        return $this->belongsTo(Perfil::class, 'id_remitente');
     }
 
     public function destinatario() {
-        return $this->belongsTo(Usuario::class, 'id_destinatario');
+        return $this->belongsTo(Perfil::class, 'id_destinatario');
     }
 }
