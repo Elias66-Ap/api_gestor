@@ -29,7 +29,7 @@ class ProyectoController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion_breve' => 'required|string|max:500',
             'descripcion_detalle' => 'nullable|string',
-            'fecha_entrega' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:' . now(),
+            'fecha_entrega' => 'nullable|date_format:Y-m-d H:i|after_or_equal:' . now(),
             'id_creador' => 'required|integer',
             'id_lider' => 'required|integer',
         ], [
