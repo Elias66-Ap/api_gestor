@@ -15,7 +15,7 @@ class PerfilController extends Controller
     {
         return Perfil::all();
     }
-
+ 
     public function miPerfil($id)
     {
         $usuario = Usuario::with('perfil', 'rendimiento')->find($id);

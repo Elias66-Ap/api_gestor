@@ -27,15 +27,15 @@ class ProyectoController extends Controller
         // Validar datos del proyecto y usuarios
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
+            'descripcion_breve' => 'required|string|max:500',
+            'descripcion_detalle' => 'nullable|string',
             'fecha_entrega' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:' . now(),
             'id_creador' => 'required|integer',
-            'id_usuarios' => 'required|array|min:2',       // usuarios obligatorios
-            'id_usuarios.*' => 'required|integer|distinct',
+            'id_lider' => 'required|integer',
         ], [
-            'id_usuarios.required' => 'Debe seleccionar al menos dos usuarios',
-            'id_usuarios.*.required' => 'Usuario inválido',
-            'id_usuarios.*.distinct' => 'Usuarios duplicados',
+            'nombre.required' => 'El nombre del proyecto es obligatorio',
+            'descripcion_breve.required' => 'La descripción breve es obligatoria',
+            'id_lider.required' => 'Seleccione el lider del proyecto',
         ]);
 
         if ($validator->fails()) {
@@ -45,35 +45,29 @@ class ProyectoController extends Controller
             ], 422);
         }
 
-        // Crear el proyecto
         $proyecto = Proyecto::create([
             'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
+            'descripcion_breve' => $request->descripcion_breve,
+            'descripcion_detalle' => $request->descripcion_detalle,
             'fecha_entrega' => $request->fecha_entrega,
             'id_creador' => $request->id_creador
         ]);
 
-        $miembrosCreados = [];
+        $id = $request->id_lider;
+        $usuario = Usuario::find($id);
+        
+        $lider = Miembroproyecto::create([
+            'id_proyecto' => $proyecto->id,
+            'id_usuario' => $id,
+            'rol' => $usuario->rol,
+        ]);
 
-        // Asignar usuarios al proyecto si vienen en la solicitud
-        if ($request->filled('id_usuarios')) {
-            foreach ($request->id_usuarios as $id_usuario) {
-                $usuario = Usuario::find($id_usuario);
-                if (!$usuario) continue;
-
-                $miembrosCreados[] = Miembroproyecto::create([
-                    'id_proyecto' => $proyecto->id,
-                    'id_usuario' => $id_usuario,
-                    'rol' => $usuario->rol,
-                ]);
-            }
-        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Proyecto creado con usuarios asignados',
+            'message' => 'Proyecto creado',
             'proyecto' => $proyecto,
-            'miembros' => $miembrosCreados
+            'lider' => $lider
         ], 201);
     }
 
