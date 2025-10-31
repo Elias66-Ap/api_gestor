@@ -7,6 +7,7 @@ use App\Models\Miembroproyecto;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class ProyectoController extends Controller
 {
@@ -162,6 +163,7 @@ class ProyectoController extends Controller
         $proyecto = Proyecto::find($id);
 
         $proyecto->completado = 2;
+        $proyecto->fecha_completado = now();
         $proyecto->save();
 
         return response()->json([

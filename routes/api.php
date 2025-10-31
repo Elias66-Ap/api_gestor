@@ -24,7 +24,7 @@ Route::apiResource('perfiles', PerfilController::class);
 
 //proyectos
 Route::patch('/completar/proyecto/{id}', [ProyectoController::class, 'completarProyecto']);
-Route::patch('pausar/proyecto/{id}', [ProyectoController::class, 'pausarProyecto']);
+Route::patch('pausar-proyecto/{id}', [ProyectoController::class, 'pausarProyecto']);
 Route::get('/proyecto/total', [ProyectoController::class, 'totalProyectos']);
 Route::apiResource('proyectos', ProyectoController::class);
 
