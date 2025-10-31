@@ -77,9 +77,9 @@ class TareaController extends Controller
 
 
 
-    public function tareasUsuario($id_asignado)
+    public function tareasUsuario($id)
     {
-        $tareas = Tarea::where('id_asignado', $id_asignado)->get();
+        $tareas = Tarea::where('id_asignado', $id)->get();
 
         if ($tareas->isEmpty()) {
             return response()->json([
