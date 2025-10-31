@@ -10,18 +10,6 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\MiembroProyectoController;
 use App\Http\Controllers\ContenidoController;
 use App\Http\Controllers\DashboardController;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -36,6 +24,7 @@ Route::apiResource('perfiles', PerfilController::class);
 
 //proyectos
 Route::patch('/completar/proyecto/{id}', [ProyectoController::class, 'completarProyecto']);
+Route::patch('pausar/proyecto/{id}', [ProyectoController::class, 'pausarProyecto']);
 Route::get('/proyecto/total', [ProyectoController::class, 'totalProyectos']);
 Route::apiResource('proyectos', ProyectoController::class);
 

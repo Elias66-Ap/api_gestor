@@ -21,7 +21,7 @@ class UsuarioController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $usuarios
-        ]); 
+        ]);
     }
 
     public function cambiarRol(Request $request, $id){

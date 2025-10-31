@@ -157,4 +157,17 @@ class ProyectoController extends Controller
             'data' => $total
         ], 200);
     }
+
+    public function pausarProyecto($id){
+        $proyecto = Proyecto::find($id);
+
+        $proyecto->completado = 2;
+        $proyecto->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Proyecto pausado',
+            'proyecto' => $proyecto
+        ]);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Mensaje;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class MensajeController extends Controller
 {
@@ -81,6 +82,7 @@ class MensajeController extends Controller
             $mensajes = Mensaje::create([
                 'asunto' => $request->asunto,
                 'contenido' => $request->contenido,
+                'fecha_envio' => now(),
                 'id_remitente' => $request->id_remitente,
                 'id_destinatario' => $ids
             ]);
