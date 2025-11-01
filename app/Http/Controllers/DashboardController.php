@@ -120,4 +120,23 @@ class DashboardController extends Controller
             ]
         ]);
     }
+
+    public function tareasColaborador($id){
+
+        $hoy = Carbon::today()->toDateString();
+        $tareasTotal = Tarea::where('id_asignado', $id)->count();
+        $tareasCompletadas = Tarea::where('id_asignado', $id)->where('estado', 'Hecho')->count();
+        $tareasPendientes = Tarea::where('id_asignado', $id)->where('estado', '=', 'Por hacer')->count();
+        $tareasHoy = Tarea::where('id_asignado', $id)->whereDate('fecha_vencimiento', $hoy)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total' => $tareasTotal,
+                'completadas' => $tareasCompletadas,
+                'pendientes' => $tareasPendientes,
+                'hoy' => $tareasHoy
+            ]
+        ]);
+    }
 }

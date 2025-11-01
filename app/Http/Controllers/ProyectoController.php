@@ -173,4 +173,6 @@ class ProyectoController extends Controller
             'proyecto' => $proyecto
         ]);
     }
+
+    
 }

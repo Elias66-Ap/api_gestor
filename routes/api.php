@@ -27,11 +27,15 @@ Route::patch('/completar/proyecto/{id}', [ProyectoController::class, 'completarP
 Route::patch('pausar-proyecto/{id}', [ProyectoController::class, 'pausarProyecto']);
 Route::get('/proyecto/total', [ProyectoController::class, 'totalProyectos']);
 Route::apiResource('proyectos', ProyectoController::class);
+//miembros
+Route::get('/proyectos-usuario/{id}', [MiembroProyectoController::class, 'proyectosUsuario']);
+Route::get('/miembros-proyecto/{id}', [MiembroProyectoController::class, 'miembrosProyecto']);
 
 //Dashboard
 Route::get('/dashboard/inicio', [DashboardController::class, 'dashboard']);
 Route::get('/usuarios/por/mes', [DashboardController::class, 'usuariosPorMes']);
 Route::get('/dashboard/proyectos', [DashboardController::class, 'proyectosChart']);
+Route::get('/dashboard-colaborador/{id}', [DashboardController::class, 'tareasColaborador']);
 
 //tareas
 Route::apiResource('tareas', TareaController::class);
