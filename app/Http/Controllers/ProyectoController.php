@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Proyecto;
 use App\Models\Miembroproyecto;
+use App\Models\RendimientoLider;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -23,7 +24,6 @@ class ProyectoController extends Controller
         ], 200);
     }
 
-    // Crear un nuevo proyecto
     public function store(Request $request)
     {
         // Validar datos del proyecto y usuarios
@@ -64,6 +64,12 @@ class ProyectoController extends Controller
             'rol' => $usuario->rol,
         ]);
 
+        $rendimiento = RendimientoLider::firstOrCreate(
+            ['id_usu' => $id],
+            ['pro_total' => 0]
+        );
+
+        $rendimiento->increment('pro_total');
 
         return response()->json([
             'status' => 'success',

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rendimiento;
+use App\Models\RendimientoLider;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use PhpParser\Node\Stmt\ElseIf_;
 
 class UsuarioController extends Controller
 {
@@ -24,7 +26,8 @@ class UsuarioController extends Controller
         ]);
     }
 
-    public function cambiarRol(Request $request, $id){
+    public function cambiarRol(Request $request, $id)
+    {
         $usuario = Usuario::find($id);
 
         $usuario->rol = $request->rol;
@@ -64,6 +67,9 @@ class UsuarioController extends Controller
         ]);
 
         Rendimiento::create(['id_usu' => $user->id]);
+        
+        RendimientoLider::create(['id_usu' => $user->id]);
+
 
         return response()->json([
             'status' => 'success',

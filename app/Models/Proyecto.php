@@ -32,7 +32,7 @@ class Proyecto extends Model
     }
 
     public function miembros(){
-        return $this->hasMany(Usuario::class, 'miembros_proyecto','id_proyecto', 'id_usuario')->withPivot('rol');
+        return $this->hasMany(MiembroProyecto::class, 'id_proyecto');
     }
 
     public function calcularProgreso()
