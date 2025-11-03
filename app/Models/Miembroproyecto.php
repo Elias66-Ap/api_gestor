@@ -17,7 +17,7 @@ class MiembroProyecto extends Model
         'rol'
     ];
 
-    public $timestamps = false; 
+    public $timestamps = false;
 
     public function proyectos(){
         return $this->belongsTo(Proyecto::class, 'id_proyecto',);

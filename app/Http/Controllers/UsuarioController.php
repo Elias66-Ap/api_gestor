@@ -26,6 +26,15 @@ class UsuarioController extends Controller
         ]);
     }
 
+    public function usuariosTodos(){
+        $usuarios = Usuario::with('perfil')->whereHas('perfil')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $usuarios
+        ]);
+    }
+
     public function cambiarRol(Request $request, $id)
     {
         $usuario = Usuario::find($id);

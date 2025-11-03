@@ -147,4 +147,17 @@ class MensajeController extends Controller
             'message' => 'Mensaje eliminado correctamente'
         ]);
     }
+
+    public function mensajeVisto($id)
+    {
+        $mensaje = Mensaje::find($id);
+
+        $mensaje->visto = 1;
+        $mensaje->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Mensaje visto'
+        ]);
+    }
 }

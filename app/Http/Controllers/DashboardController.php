@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Usuario;
+use App\Models\MiembroProyecto;
 use App\Models\Tarea;
 use App\Models\Proyecto;
 use App\Models\Rendimiento;
@@ -136,6 +137,31 @@ class DashboardController extends Controller
                 'completadas' => $tareasCompletadas,
                 'pendientes' => $tareasPendientes,
                 'hoy' => $tareasHoy
+            ]
+        ]);
+    }
+
+    public function dashboardLider($id){
+        $proyectoCreados = Proyecto::where('id_creador', '=',$id)->count();
+        $proyectosActivos = Proyecto::whereHas('miembros', function($query) use ($id) {
+            $query->where('id_usuario', $id);
+        })
+        ->where('completado', 0)
+        ->count();
+        $tareastotal = Tarea::where('id_asignado', $id)->count();
+        $tareasPendientes = Tarea::where('id_asignado', $id)->where('estado', 'Por hacer')->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'proyectos' => [
+                    'creados' => $proyectoCreados,
+                    'activos' => $proyectosActivos
+                ],
+                'tareas' => [
+                    'total' => $tareastotal,
+                    'pendientes' => $tareasPendientes
+                ]
             ]
         ]);
     }
