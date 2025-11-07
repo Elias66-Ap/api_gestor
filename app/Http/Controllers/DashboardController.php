@@ -17,7 +17,6 @@ class DashboardController extends Controller
     public function dashboard()
     {
 
-        $hoy = Carbon::today()->toDateString();
         $ayer = Carbon::yesterday();
         $estaSemana = Carbon::now()->startOfWeek();
         $esteMes = Carbon::now()->startOfMonth();
@@ -122,13 +121,14 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function tareasColaborador($id){
+    public function tareasColaborador($id)
+    {
 
         $hoy = Carbon::today()->toDateString();
         $tareasTotal = Tarea::where('id_asignado', $id)->count();
         $tareasCompletadas = Tarea::where('id_asignado', $id)->where('estado', 'Hecho')->count();
         $tareasPendientes = Tarea::where('id_asignado', $id)->where('estado', '=', 'Por hacer')->count();
-        $tareasHoy = Tarea::where('id_asignado', $id)->whereDate('fecha_vencimiento', $hoy)->count();
+        $tareasHoy = Tarea::where('id_asignado', $id)->where('fecha_vencimiento', '=', $hoy)->count();
 
         return response()->json([
             'status' => 'success',
@@ -141,28 +141,125 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function dashboardLider($id){
-        $proyectoCreados = Proyecto::where('id_creador', '=',$id)->count();
-        $proyectosActivos = Proyecto::whereHas('miembros', function($query) use ($id) {
+    public function dashboardLider($id)
+    {
+
+        $hoy = Carbon::today()->toDateString();
+        $ayer = Carbon::yesterday();
+        $semana = Carbon::now()->startOfWeek();
+        $mes = Carbon::now()->startOfMonth();
+
+        //Tareas Pendientes: 
+        $proyectos = MiembroProyecto::where('id_usuario', $id)->pluck('id_proyecto');
+        $tareasPendientes = Tarea::whereIn('id_proyecto', $proyectos)->where('estado', '=', 'Por hacer')->count();
+        $tareasPendientesHoy = Tarea::whereIn('id_proyecto', $proyectos)
+            ->where('estado', '=', 'Hecho')
+            ->whereDate('fecha_completado', '=', $hoy)
+            ->count();
+        //----
+
+        $proyectoCreados = Proyecto::where('id_creador', '=', $id)->count();
+        $proyectosCreadosMes = Proyecto::where('id_creador', $id)->whereDate('fecha_inicio', '>=', $mes)->count();
+
+        $proyectosActivos = Proyecto::whereHas('miembros', function ($query) use ($id) {
             $query->where('id_usuario', $id);
         })
-        ->where('completado', 0)
-        ->count();
-        $tareastotal = Tarea::where('id_asignado', $id)->count();
-        $tareasPendientes = Tarea::where('id_asignado', $id)->where('estado', 'Por hacer')->count();
+            ->where('completado', 0)
+            ->count();
+        $proyectosActivosMes = Proyecto::whereHas('miembros', function ($query) use ($id) {
+            $query->where('id_usuario', $id);
+        })
+            ->where('completado', 0)
+            ->whereDate('fecha_inicio', '>=', $mes)
+            ->count();
+
+        $proyectosCompletadosMes = Proyecto::whereHas('miembros', function ($query) use ($id) {
+            $query->where('id_usuario', $id);
+        })
+            ->where('completado', 1)
+            ->whereDate('fecha_completado', '>=', $mes)
+            ->count();
+        $proyectosCompletados = Proyecto::whereHas('miembros', function ($query) use ($id) {
+            $query->where('id_usuario', $id);
+        })
+            ->where('completado', 1)
+            ->count();
+
+        $tareasAsignadas = Tarea::where('id_asignado', $id)->count();
+        $tareasAsignadasSemana = Tarea::where('id_asignado', $id)
+            ->where('fecha_creacion', '>=', $semana)
+            ->count();
+        $tareasCreadas = Tarea::where('id_creador', $id)->count();
+        $creadasSemana = Tarea::where('id_creador', $id)->where('fecha_creacion', '>=', $semana)->count();
 
         return response()->json([
             'status' => 'success',
             'data' => [
                 'proyectos' => [
                     'creados' => $proyectoCreados,
-                    'activos' => $proyectosActivos
+                    'creadosMes' => "+{$proyectosCreadosMes} este mes",
+                    'activos' => $proyectosActivos,
+                    'activosMes' => "+{$proyectosActivosMes} este mes",
+                    'completados' => $proyectosCompletados,
+                    'completadosMes' => "+{$proyectosCompletadosMes} este mes"
                 ],
                 'tareas' => [
-                    'total' => $tareastotal,
-                    'pendientes' => $tareasPendientes
-                ]
-            ]
+                    'creadas' => $tareasCreadas,
+                    'creadasSemana' => "+{$creadasSemana} esta semana",
+                    'pendientes' => $tareasPendientes,
+                    'pendientesHoy' => "-{$tareasPendientesHoy} hoy",
+                    'asignadas' => $tareasAsignadas,
+                    'asignadasSemana' => "+{$tareasAsignadasSemana} esta semana"
+                ],
+            ],
+        ]);
+    }
+
+    public function proyectosLiderDashboard($id)
+    {
+
+        $proyectosActivos = Proyecto::whereHas('miembros', function ($query) use ($id) {
+            $query->where('id_usuario', $id);
+        })
+            ->where('completado', 0)->count();
+
+        $proyectosCompletados = Proyecto::whereHas('miembros', function ($query) use ($id) {
+            $query->where('id_usuario', $id);
+        })
+            ->where('completado', 1)->count();
+
+        $proyectosPausados = Proyecto::whereHas('miembros', function ($query) use ($id) {
+            $query->where('id_usuario', $id);
+        })
+            ->where('completado', 2)->count();
+
+
+        return response()->json([
+            'status' => 'success',
+            'proyectos' => [
+                'activos' => $proyectosActivos,
+                'completados' => $proyectosCompletados,
+                'pausados' => $proyectosPausados
+            ],
+        ]);
+    }
+
+    public function tareasLiderDashboard($id) {
+        $hoy = Carbon::today()->toDateString();
+
+        $tareasTotal = Tarea::where('id_asignado', $id)->count();
+        $tareasActivas = Tarea::where('id_asignado', $id)->where('estado', '!=', 'Hecho')->count();
+        $tareasCompletadas = Tarea::where('id_asignado', $id)->where('estado', 'Hecho')->count();
+        $tareasHoy = Tarea::where('id_asignado', $id)->whereDate('fecha_vencimiento', $hoy)->count();
+
+        return response()->json([
+            'status'=> 'success',
+            'tareas' => [
+                'total' => $tareasTotal,
+                'activas' => $tareasActivas,
+                'completadas' => $tareasCompletadas,
+                'hoy' => $tareasHoy
+            ],
         ]);
     }
 }

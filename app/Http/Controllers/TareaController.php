@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Usuario;
 use App\Models\Tarea;
 use App\Models\Proyecto;
+use App\Models\MiembroProyecto;
 use App\Models\Rendimiento;
 use Illuminate\Support\Facades\Validator;
 
@@ -35,13 +36,15 @@ class TareaController extends Controller
             'fecha_vencimiento' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:' . now(),
             'id_proyecto' => 'required|integer',
             'id_asignado' => 'required|integer',
+            'id_creador' => 'required|integer',
         ], [
             'titulo.required' => 'El titulo es necesario',
             'estado.in' => 'El estado debe ser Por Hacer, Proceso, Revisión o Hecho',
             'fecha_vencimiento.date_format' => 'La fecha de vencimiento debe tener el formato YYYY-MM-DD HH:MM:SS',
             'fecha_vencimiento.after_or_equal' => 'La fecha de vencimiento no puede ser anterior a hoy',
             'id_proyecto.required' => 'Debe indicar el proyecto al que pertenece la tarea',
-            'id_asignado.required' => 'Debe indicar a quién se asigna la tarea'
+            'id_asignado.required' => 'Debe indicar a quién se asigna la tarea',
+            'id_creador.required' => 'Debe indicar quien creo la tarea'
         ]);
 
         if ($validator->fails()) {
@@ -58,7 +61,8 @@ class TareaController extends Controller
             'prioridad' => $request->prioridad,
             'fecha_vencimiento' => $request->fecha_vencimiento,
             'id_proyecto' => $request->id_proyecto,
-            'id_asignado' => $request->id_asignado
+            'id_asignado' => $request->id_asignado,
+            'id_creador' => $request->id_creador,
         ]);
 
         $rendimiento = Rendimiento::firstOrCreate(
@@ -236,7 +240,7 @@ class TareaController extends Controller
             'prioridad',
             'fecha_vencimiento',
             'id_proyecto',
-            'id_asignado'
+            'id_asignado',
         ]));
 
         return response()->json([
@@ -325,6 +329,16 @@ class TareaController extends Controller
             'status' => 'success',
             'message' => 'Revisión completada',
             'data' => $tarea
+        ]);
+    }
+
+    public function tareasLider($id)
+    {
+        $tareas = Tarea::where('id_asignado', $id)->where('estado', '!=','Hecho')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'tareas' => $tareas,
         ]);
     }
 }

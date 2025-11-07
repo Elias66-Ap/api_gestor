@@ -28,6 +28,7 @@ Route::patch('/completar/proyecto/{id}', [ProyectoController::class, 'completarP
 Route::patch('pausar-proyecto/{id}', [ProyectoController::class, 'pausarProyecto']);
 Route::get('/proyecto/total', [ProyectoController::class, 'totalProyectos']);
 Route::apiResource('proyectos', ProyectoController::class);
+Route::get('/proyectos-lider/{id}', [ProyectoController::class, 'proyectosLider']);
 
 //miembros
 Route::get('/proyectos-usuario/{id}', [MiembroProyectoController::class, 'proyectosUsuario']);
@@ -39,6 +40,8 @@ Route::get('/usuarios/por/mes', [DashboardController::class, 'usuariosPorMes']);
 Route::get('/dashboard/proyectos', [DashboardController::class, 'proyectosChart']);
 Route::get('/dashboard-colaborador/{id}', [DashboardController::class, 'tareasColaborador']);
 Route::get('/dashboard-lider/{id}', [DashboardController::class, 'dashboardLider']);
+Route::get('/dashboard-proyectos-lider/{id}', [DashboardController::class, 'proyectosLiderDashboard']);
+Route::get('/dashboard-tareas-lider/{id}', [DashboardController::class, 'tareasLiderDashboard']);
 
 //tareas
 Route::apiResource('tareas', TareaController::class);
@@ -46,6 +49,7 @@ Route::get('tareas-usuario/{id_asignado}', [TareaController::class, 'tareasUsuar
 Route::get('tareas/proyecto/{id_pro}', [TareaController::class, 'tareasProyecto']);
 Route::patch('/tareas/{id}/estado', [TareaController::class, 'cambiarEstadoColaborador']);
 Route::patch('/tareas/{id}/revision', [TareaController::class, 'cambiarEstadoLider']);
+Route::get('/tareas-lider/{id}', [TareaController::class, 'tareasLider']);
 
 Route::patch('/tareas/{id}/status', [TareaController::class, 'cambiarEstado']);
 

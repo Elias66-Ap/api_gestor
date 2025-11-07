@@ -15,13 +15,30 @@ class ProyectoController extends Controller
     public function index()
     {
         $proyectos = Proyecto::with('tareas')
-        ->where('completado', '!=', 2)
-        ->withCount('miembros')->get();
+            ->where('completado', '!=', 2)
+            ->withCount('miembros')->get();
 
         return response()->json([
             'status' => 'success',
             'proyectos' => $proyectos
         ], 200);
+    }
+
+    public function proyectosLider($id)
+    {
+
+        $proyectos = Proyecto::whereHas('miembros', function ($query) use ($id) {
+            $query->where('id_usuario', $id);
+        })
+            ->where('completado', 0)
+            ->with('tareas')
+            ->withCount('miembros')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'proyectos' => $proyectos,
+        ]);
     }
 
     public function store(Request $request)
@@ -57,7 +74,7 @@ class ProyectoController extends Controller
 
         $id = $request->id_lider;
         $usuario = Usuario::find($id);
-        
+
         $lider = Miembroproyecto::create([
             'id_proyecto' => $proyecto->id,
             'id_usuario' => $id,
@@ -103,7 +120,7 @@ class ProyectoController extends Controller
     // Mostrar un proyecto específico
     public function show($id)
     {
-        $proyecto = Proyecto::with('tareas')->find($id);
+        $proyecto = Proyecto::with('tareas')->withCount('miembros')->find($id);
 
         if (!$proyecto) {
             return response()->json([
@@ -166,7 +183,8 @@ class ProyectoController extends Controller
         ], 200);
     }
 
-    public function pausarProyecto($id){
+    public function pausarProyecto($id)
+    {
         $proyecto = Proyecto::find($id);
 
         $proyecto->completado = 2;
@@ -179,6 +197,4 @@ class ProyectoController extends Controller
             'proyecto' => $proyecto
         ]);
     }
-
-    
 }

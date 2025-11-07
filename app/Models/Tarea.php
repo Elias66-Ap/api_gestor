@@ -22,7 +22,8 @@ class Tarea extends Model
         'fecha_vencimiento',
         'fecha_completado',
         'id_proyecto',
-        'id_asignado'
+        'id_asignado',
+        'id_creador',
     ];
 
     public $timestamps = false;

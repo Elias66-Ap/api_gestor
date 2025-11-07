@@ -26,7 +26,8 @@ class UsuarioController extends Controller
         ]);
     }
 
-    public function usuariosTodos(){
+    public function usuariosTodos()
+    {
         $usuarios = Usuario::with('perfil')->whereHas('perfil')->get();
 
         return response()->json([
@@ -76,7 +77,7 @@ class UsuarioController extends Controller
         ]);
 
         Rendimiento::create(['id_usu' => $user->id]);
-        
+
         RendimientoLider::create(['id_usu' => $user->id]);
 
 

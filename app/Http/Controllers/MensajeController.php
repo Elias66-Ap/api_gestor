@@ -32,37 +32,18 @@ class MensajeController extends Controller
         ], 200);
     }
 
-    public function mensajesUsuarios($idr, $idd)
-    {
-        $mensaje = Mensaje::where('id_remitente',  'id_destinatario', $idr, $idd)->get();
-
-        if ($mensaje->isEmpty()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No se encontraron mensaje para este usuario',
-                'data' => []
-            ], 404);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'mensajes' => $mensaje
-        ], 200);
-    }
-
     public function store(Request $request)
     {
         $validator = Validator::make(
             $request->all(),
             [
-                'asunto' => 'required|string|max:200',
+                'asunto' => 'nullable|string|max:200',
                 'contenido' => 'required|string',
                 'id_remitente' => 'required|integer',
                 'id_destinatario' => 'required|array|min:1',
                 'id_destinatario.*' => 'integer|distinct',
             ],
             [
-                'asunto.required' => "El campo asunto es obligatorio",
                 'contenido.required' => "No hay contenido en el mensaje",
                 'id_destinatario.required' => 'Mensaje sin destinatario',
                 'id_destinatario.min' => 'Debe haber al menos un destinatario'
