@@ -20,6 +20,8 @@ Route::get('/lideres', [UsuarioController::class, 'lideres']);
 Route::get('/colaboradores', [UsuarioController::class, 'colaboradores']);
 Route::post('/completar-perfil/{id}', [PerfilController::class, 'completarPerfil']);
 Route::get('/usuarios-todos', [UsuarioController::class, 'usuariosTodos']);
+Route::patch('/admin/cambiar-clave/{id}',[UsuarioController::class, 'cambiarContraseña']);
+Route::patch('/usuario/cambiar-clave/{id}',[UsuarioController::class, 'cambiarClave']);
 Route::apiResource('usuarios', UsuarioController::class);
 Route::apiResource('perfiles', PerfilController::class);
 
@@ -37,11 +39,16 @@ Route::get('/miembros-proyecto/{id}', [MiembroProyectoController::class, 'miembr
 //Dashboard
 Route::get('/dashboard/inicio', [DashboardController::class, 'dashboard']);
 Route::get('/usuarios/por/mes', [DashboardController::class, 'usuariosPorMes']);
+Route::get('/dashboard/usuarios', [DashboardController::class, 'dashboardUsuarios']);
 Route::get('/dashboard/proyectos', [DashboardController::class, 'proyectosChart']);
 Route::get('/dashboard-colaborador/{id}', [DashboardController::class, 'tareasColaborador']);
 Route::get('/dashboard-lider/{id}', [DashboardController::class, 'dashboardLider']);
 Route::get('/dashboard-proyectos-lider/{id}', [DashboardController::class, 'proyectosLiderDashboard']);
 Route::get('/dashboard-tareas-lider/{id}', [DashboardController::class, 'tareasLiderDashboard']);
+Route::get('/tareas-resumen', [DashboardController::class, 'resumen']);
+Route::get('/tareas-mes/{id}', [DashboardController::class, 'getTareasPorMes']);
+Route::get('/proyectos-mes/{id}', [DashboardController::class, 'proyectosPorMes']);
+
 
 //tareas
 Route::apiResource('tareas', TareaController::class);
@@ -50,6 +57,7 @@ Route::get('tareas/proyecto/{id_pro}', [TareaController::class, 'tareasProyecto'
 Route::patch('/tareas/{id}/estado', [TareaController::class, 'cambiarEstadoColaborador']);
 Route::patch('/tareas/{id}/revision', [TareaController::class, 'cambiarEstadoLider']);
 Route::get('/tareas-lider/{id}', [TareaController::class, 'tareasLider']);
+
 
 Route::patch('/tareas/{id}/status', [TareaController::class, 'cambiarEstado']);
 

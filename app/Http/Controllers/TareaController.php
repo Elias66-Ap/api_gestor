@@ -30,7 +30,7 @@ class TareaController extends Controller
         $validator = Validator::make($request->all(), [
             'titulo' => 'required|string',
             'descripcion' => 'nullable|string',
-            'estado' => 'nullable|string|in:Por Hacer,Proceso,Revisión,Hecho',
+            'estado' => 'nullable|string|in:Por hacer,En proceso,Revisión,Hecho',
             'prioridad' => 'nullable|string',
             'fecha_creacion' => 'nullable|date',
             'fecha_vencimiento' => 'nullable|date_format:Y-m-d H:i:s|after_or_equal:' . now(),
@@ -59,6 +59,7 @@ class TareaController extends Controller
             'descripcion' => $request->descripcion,
             'estado' => $request->estado ?? 'Por Hacer',
             'prioridad' => $request->prioridad,
+            'fecha_creacion' => $request->fecha_creacion,
             'fecha_vencimiento' => $request->fecha_vencimiento,
             'id_proyecto' => $request->id_proyecto,
             'id_asignado' => $request->id_asignado,
@@ -341,4 +342,6 @@ class TareaController extends Controller
             'tareas' => $tareas,
         ]);
     }
+
+    
 }

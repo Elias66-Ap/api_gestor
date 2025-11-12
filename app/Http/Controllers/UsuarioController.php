@@ -20,9 +20,12 @@ class UsuarioController extends Controller
             ->where('rol', '!=', 'Administrador')
             ->get();
 
+        $usuariosSinPerfil = Usuario::where('tiene_perfil', 0)->get();
+
         return response()->json([
             'status' => 'success',
-            'data' => $usuarios
+            'data' => $usuarios,
+            'sin_perfil' => $usuariosSinPerfil
         ]);
     }
 
@@ -167,7 +170,8 @@ class UsuarioController extends Controller
 
     public function lideres()
     {
-        $total = Usuario::with('perfil')->where('rol', '=', 'Lider')->whereHas('perfil')->get();
+        $total = Usuario::with('perfil')->where('rol', '=', 'Lider')
+            ->whereHas('perfil')->get();
 
         if ($total->isEmpty()) {
             return response()->json([
@@ -197,5 +201,65 @@ class UsuarioController extends Controller
             'status' => 'success',
             'data' => $total
         ], 200);
+    }
+
+    public function cambiarContraseña(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'passwordd_nueva' => 'required|min:5|confirmed'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ]);
+        }
+
+        $usuario = Usuario::find($id);
+
+        $usuario->passwordd = Hash::make($request->passwordd_nueva);
+        $usuario->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Contraseña actualizada'
+        ]);
+    }
+
+    public function cambiarClave(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'passwordd_actual' => 'required|min:8',
+            'passwordd_nueva' => 'required|min:5|confirmed',
+        ],[
+            'passwordd_actual.required' => 'Contraseña actual requerida',
+            'passwordd_nueva.required' => 'Contraseña nueva requerida',
+            'passwordd_nueva.confirmed' => 'Las contraseñas no coinciden'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'error' => $validator->errors()
+            ]);
+        }
+
+        $usuario = Usuario::find($id);
+
+        if (!Hash::check($request->passwordd_actual, $usuario->passwordd)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'La contraseña actual es incorrecta',
+            ], 400);
+        }
+
+        $usuario->passwordd = Hash::make($request->passwordd_nueva);
+        $usuario->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Contraseña actualizada correctamente'
+        ]);
     }
 }
