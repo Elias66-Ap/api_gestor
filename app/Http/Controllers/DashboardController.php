@@ -297,7 +297,7 @@ class DashboardController extends Controller
             $t = $resumenMensual->firstWhere('mes', $mes);
             return [
                 'mes' => $mes,
-                'nombre_mes' => \Carbon\Carbon::create()->month($mes)->locale('es')->monthName,
+                'nombre_mes' => Carbon::create()->month($mes)->locale('es')->monthName,
                 'total_tareas' => $t->total_tareas ?? 0,
                 'completadas' => $t->completadas ?? 0,
                 'pendientes' => $t->pendientes ?? 0,

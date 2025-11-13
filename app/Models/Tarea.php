@@ -33,7 +33,7 @@ class Tarea extends Model
     }
 
     public function asignado() {
-        return $this->belongsTo(Usuario::class, 'id_asignado');
+        return $this->belongsTo(Perfil::class, 'id_asignado');
     }
 
     public function contenidos(){

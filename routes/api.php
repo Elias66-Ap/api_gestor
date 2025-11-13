@@ -31,10 +31,11 @@ Route::patch('pausar-proyecto/{id}', [ProyectoController::class, 'pausarProyecto
 Route::get('/proyecto/total', [ProyectoController::class, 'totalProyectos']);
 Route::apiResource('proyectos', ProyectoController::class);
 Route::get('/proyectos-lider/{id}', [ProyectoController::class, 'proyectosLider']);
+Route::get('/ver-proyecto/{id}', [MiembroProyectoController::class, 'verProyecto']);
 
 //miembros
 Route::get('/proyectos-usuario/{id}', [MiembroProyectoController::class, 'proyectosUsuario']);
-Route::get('/miembros-proyecto/{id}', [MiembroProyectoController::class, 'miembrosProyecto']);
+Route::post('/agregar-miembros', [MiembroProyectoController::class, 'agregarMiembros']);
 
 //Dashboard
 Route::get('/dashboard/inicio', [DashboardController::class, 'dashboard']);

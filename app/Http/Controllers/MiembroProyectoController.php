@@ -7,11 +7,12 @@ use App\Models\MiembroProyecto;
 use App\Models\Tarea;
 use App\Models\Proyecto;
 use App\Models\Usuario;
+use App\Models\Perfil;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class MiembroProyectoController extends Controller
 {
-    // Obtener todos los miembros de proyectos
     public function index()
     {
         return response()->json(MiembroProyecto::all(), 200);
@@ -53,7 +54,7 @@ class MiembroProyectoController extends Controller
         ], 201);
     }
 
-    public function agregarMiembros(Request $request, $idPro)
+    public function agregarMiembros(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'id_proyecto' => 'required|integer',
@@ -70,12 +71,12 @@ class MiembroProyectoController extends Controller
 
         $miembros = [];
 
-        foreach ($request->id_usuario as $id) {
+        foreach ($request->id_usuarios as $id) {
             $usuario = Usuario::find($id);
             if (!$usuario) continue;
 
             $miembros[] = MiembroProyecto::create([
-                'id_proyecto' => $idPro,
+                'id_proyecto' => $request->id_proyecto,
                 'id_usuario' => $id,
                 'rol' => $usuario->rol
             ]);
@@ -138,15 +139,18 @@ class MiembroProyectoController extends Controller
         ], 202);
     }
 
-    public function miembrosProyecto($id)
+
+    public function verProyecto($id)
     {
-        $miembros = Proyecto::with('miembros')->find($id);
+        $miembros = MiembroProyecto::where('id_proyecto', $id)->pluck('id_usuario');
+        $usuarios = Perfil::whereIn('id_usu', $miembros)->get();
+
+        $proyecto = Proyecto::with('tareas')->find($id);
 
         return response()->json([
             'status' => 'success',
-            'miembros' => $miembros
-        ], 202);
+            'proyecto' => $proyecto, 
+            'miembros' => $usuarios
+        ]);
     }
-
-
 }

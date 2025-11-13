@@ -23,4 +23,8 @@ class MiembroProyecto extends Model
         return $this->belongsTo(Proyecto::class, 'id_proyecto',);
     }
 
+    public function miembros(){
+        return $this->belongsTo(Perfil::class, 'id_usuario');
+    }
+
 }

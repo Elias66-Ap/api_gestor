@@ -6,6 +6,8 @@ use App\Models\Proyecto;
 use App\Models\Miembroproyecto;
 use App\Models\RendimientoLider;
 use App\Models\Usuario;
+use App\Models\Perfil;
+use App\Models\Mensaje;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -88,6 +90,13 @@ class ProyectoController extends Controller
 
         $rendimiento->increment('pro_total');
 
+        $mensaje = Mensaje::create([
+            'asunto' => 'Proyecto asignado',
+            'contenido' => 'Te asignaron un nuevo proyecto',
+            'id_remitente' => $request->id_creador,
+            'id_destinatario' => $id,
+        ]);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Proyecto creado',
@@ -120,18 +129,15 @@ class ProyectoController extends Controller
     // Mostrar un proyecto específico
     public function show($id)
     {
-        $proyecto = Proyecto::with('tareas')->withCount('miembros')->find($id);
+        $users = MiembroProyecto::where('id_proyecto', $id)->pluck('id_usuario');
+        $miembros = Perfil::whereIn('id_usu', $users)->get();
 
-        if (!$proyecto) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Proyecto no encontrado'
-            ], 404);
-        }
+        $proyecto = Proyecto::with(['tareas.asignado', 'tareas.contenidos'])->withCount('miembros')->find($id);
 
         return response()->json([
             'status' => 'success',
-            'proyecto' => $proyecto
+            'proyecto' => $proyecto,
+            'miembros' => $miembros
         ], 200);
     }
 
