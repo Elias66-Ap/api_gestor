@@ -43,6 +43,16 @@ class ProyectoController extends Controller
         ]);
     }
 
+    public function proyectosColaborador($id){
+        $id_proyectos = MiembroProyecto::where('id_usuario', $id)->pluck('id_proyecto');
+        $proyectos = Proyecto::whereIn('id', $id_proyectos)->with('tareas')->withCount('miembros')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'proyectos' => $proyectos
+        ]);
+    }
+
     public function store(Request $request)
     {
         // Validar datos del proyecto y usuarios

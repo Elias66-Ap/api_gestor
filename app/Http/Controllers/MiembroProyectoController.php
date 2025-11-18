@@ -130,7 +130,9 @@ class MiembroProyectoController extends Controller
                 ->where('id_usuario', $id);
         })->get();
 
-        $tareas = Tarea::where('id_asignado', $id)->get();
+        $tareas = Tarea::where('id_asignado', $id)
+                ->orderBy('fecha_vencimiento', 'asc') // asc = fecha más cercana primero
+                ->get();
 
         return response()->json([
             'status' => 'success',

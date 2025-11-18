@@ -31,6 +31,7 @@ Route::patch('pausar-proyecto/{id}', [ProyectoController::class, 'pausarProyecto
 Route::get('/proyecto/total', [ProyectoController::class, 'totalProyectos']);
 Route::apiResource('proyectos', ProyectoController::class);
 Route::get('/proyectos-lider/{id}', [ProyectoController::class, 'proyectosLider']);
+Route::get('/proyectos-colaborador/{id}', [ProyectoController::class, 'proyectosColaborador']);
 Route::get('/ver-proyecto/{id}', [MiembroProyectoController::class, 'verProyecto']);
 
 //miembros
