@@ -20,8 +20,8 @@ Route::get('/lideres', [UsuarioController::class, 'lideres']);
 Route::get('/colaboradores', [UsuarioController::class, 'colaboradores']);
 Route::post('/completar-perfil/{id}', [PerfilController::class, 'completarPerfil']);
 Route::get('/usuarios-todos', [UsuarioController::class, 'usuariosTodos']);
-Route::patch('/admin/cambiar-clave/{id}',[UsuarioController::class, 'cambiarContraseña']);
-Route::patch('/usuario/cambiar-clave/{id}',[UsuarioController::class, 'cambiarClave']);
+Route::patch('/admin/cambiar-clave/{id}', [UsuarioController::class, 'cambiarContraseña']);
+Route::patch('/usuario/cambiar-clave/{id}', [UsuarioController::class, 'cambiarClave']);
 Route::apiResource('usuarios', UsuarioController::class);
 Route::apiResource('perfiles', PerfilController::class);
 
@@ -56,14 +56,18 @@ Route::get('/proyectos-mes/{id}', [DashboardController::class, 'proyectosPorMes'
 Route::apiResource('tareas', TareaController::class);
 Route::get('tareas-usuario/{id_asignado}', [TareaController::class, 'tareasUsuario']);
 Route::get('tareas/proyecto/{id_pro}', [TareaController::class, 'tareasProyecto']);
-Route::patch('/tareas/{id}/estado', [TareaController::class, 'cambiarEstadoColaborador']);
+Route::patch('/tareas/cambiar-estado/{id}', [TareaController::class, 'cambiarEstadoTarea']);
 Route::patch('/tareas/{id}/revision', [TareaController::class, 'cambiarEstadoLider']);
 Route::get('/tareas-lider/{id}', [TareaController::class, 'tareasLider']);
 
 
 Route::patch('/tareas/{id}/status', [TareaController::class, 'cambiarEstado']);
 
-Route::post('tareas/{id_tarea}/contenido', [ContenidoController::class, 'agregarContenido']);
+// routes/api.php
+Route::get('/tareas/contenido/{id}/descargar', [ContenidoController::class, 'descargar'])->name('descargar.tarea');
+
+
+Route::post('/subir-tarea', [ContenidoController::class, 'agregarContenido']);
 Route::patch('/contenidos/{id}/editar', [ContenidoController::class, 'updateContenido']);
 Route::delete('/contenidos/{id}/eliminar', [ContenidoController::class, 'destroyContenido']);
 

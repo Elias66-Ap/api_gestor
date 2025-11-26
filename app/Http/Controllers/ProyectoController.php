@@ -16,8 +16,8 @@ class ProyectoController extends Controller
 {
     public function index()
     {
-        $proyectos = Proyecto::with('tareas')
-            ->where('completado', '!=', 2)
+        $proyectos = Proyecto::with('tareas.contenidos')
+            ->where('completado', '!=', 2) 
             ->withCount('miembros')->get();
 
         return response()->json([

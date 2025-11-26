@@ -271,18 +271,12 @@ class TareaController extends Controller
     }
 
 
-    public function cambiarEstadoColaborador(Request $request, $id)
+    public function cambiarEstadoTarea(Request $request, $id)
     {
-        $tarea = Tarea::find($id);
-        if (!$tarea) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Tarea no encontrada'
-            ], 404);
-        }
-
         $validator = Validator::make($request->all(), [
-            'estado' => 'required|string|in:En proceso,En revisión',
+            'estado' => 'required|string|in:Por hacer,En proceso,Revision,Hecho',
+        ], [
+            'estado.in' => 'Estado de tarea incorrecto'
         ]);
 
         if ($validator->fails()) {
@@ -290,6 +284,15 @@ class TareaController extends Controller
                 'status' => 'error',
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+        $tarea = Tarea::find($id);
+
+        if (!$tarea) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tarea no encontrada'
+            ], 404);
         }
 
         $tarea->estado = $request->estado;
@@ -335,13 +338,11 @@ class TareaController extends Controller
 
     public function tareasLider($id)
     {
-        $tareas = Tarea::where('id_asignado', $id)->where('estado', '!=','Hecho')->get();
+        $tareas = Tarea::where('id_asignado', $id)->where('estado', '!=', 'Hecho')->get();
 
         return response()->json([
             'status' => 'success',
             'tareas' => $tareas,
         ]);
     }
-
-    
 }
