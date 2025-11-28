@@ -93,7 +93,7 @@ class DashboardController extends Controller
                     'hoy' => "-{$tareasHoy} hoy"
                 ],
                 'rendimiento' => [
-                    'promedio' => $promedioRendimiento
+                    'promedio' => "{$promedioRendimiento}%"
                 ]
             ]
         ]);

@@ -62,6 +62,7 @@ Route::get('/tareas-lider/{id}', [TareaController::class, 'tareasLider']);
 
 
 Route::patch('/tareas/{id}/status', [TareaController::class, 'cambiarEstado']);
+Route::delete('/tareas/eliminar/{id}', [ContenidoController::class, 'eliminarContenido']);
 
 // routes/api.php
 Route::get('/tareas/contenido/{id}/descargar', [ContenidoController::class, 'descargar'])->name('descargar.tarea');

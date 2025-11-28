@@ -10,6 +10,7 @@ use App\Models\Usuario;
 use App\Models\Perfil;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class MiembroProyectoController extends Controller
 {
@@ -124,19 +125,19 @@ class MiembroProyectoController extends Controller
 
     public function proyectosUsuario($id)
     {
-        $proyectos = Proyecto::whereIn('id', function ($query) use ($id) {
-            $query->select('id_proyecto')
-                ->from('miembros_proyecto')
-                ->where('id_usuario', $id);
-        })->get();
+        $hoy = Carbon::now()->toDateString();
 
-        $tareas = Tarea::where('id_asignado', $id)
-                ->orderBy('fecha_vencimiento', 'asc') // asc = fecha más cercana primero
-                ->get();
+        $p = MiembroProyecto::where('id_usuario', $id)->pluck('id_proyecto');
+        $projects = Proyecto::whereIn('id', $p)->with('miembros.miembros')->get();
+
+        $tareas = Tarea::where('id_asignado', $id)->where('estado', '!=', 'Hecho')
+            ->where('fecha_vencimiento', '>=', $hoy)
+            ->orderBy('fecha_vencimiento', 'asc') // asc = fecha más cercana primero
+            ->get();
 
         return response()->json([
             'status' => 'success',
-            'proyectos' => $proyectos,
+            'proyectos' => $projects,
             'tareas' => $tareas
         ], 202);
     }
@@ -151,7 +152,7 @@ class MiembroProyectoController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'proyecto' => $proyecto, 
+            'proyecto' => $proyecto,
             'miembros' => $usuarios
         ]);
     }

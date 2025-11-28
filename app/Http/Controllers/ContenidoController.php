@@ -114,18 +114,10 @@ class ContenidoController extends Controller
         ]);
     }
 
-    public function destroyContenido($id_contenido)
+    public function eliminarContenido($id)
     {
-        $contenido = TareaContenido::find($id_contenido);
+        $contenido = TareaContenido::find($id);
 
-        if (!$contenido) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Contenido no encontrado'
-            ], 404);
-        }
-
-        // Si es archivo, eliminarlo del storage
         if ($contenido->tipo === 'archivo') {
             Storage::disk('public')->delete($contenido->valor);
         }

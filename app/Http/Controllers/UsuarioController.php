@@ -31,7 +31,7 @@ class UsuarioController extends Controller
 
     public function usuariosTodos()
     {
-        $usuarios = Usuario::with('perfil')->whereHas('perfil')->get();
+        $usuarios = Usuario::with(['perfil','rendimiento'])->whereHas('perfil')->get();
 
         return response()->json([
             'status' => 'success',
