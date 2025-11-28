@@ -32,7 +32,6 @@ class ProyectoController extends Controller
         $proyectos = Proyecto::whereHas('miembros', function ($query) use ($id) {
             $query->where('id_usuario', $id);
         })
-            ->where('completado', 0)
             ->with('tareas')
             ->withCount('miembros')
             ->get();
@@ -118,13 +117,6 @@ class ProyectoController extends Controller
     public function completarProyecto($id)
     {
         $proyecto = Proyecto::find($id);
-
-        if (!$proyecto) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Proyecto inexistente'
-            ], 404);
-        }
 
         $proyecto->completado = 1;
         $proyecto->save();

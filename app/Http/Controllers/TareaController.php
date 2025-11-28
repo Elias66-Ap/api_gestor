@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Usuario;
 use App\Models\Tarea;
 use App\Models\Proyecto;
+use App\Models\Mensaje;
 use App\Models\MiembroProyecto;
 use App\Models\Rendimiento;
 use Illuminate\Support\Facades\Validator;
@@ -64,6 +65,13 @@ class TareaController extends Controller
             'id_proyecto' => $request->id_proyecto,
             'id_asignado' => $request->id_asignado,
             'id_creador' => $request->id_creador,
+        ]);
+
+        Mensaje::create([
+            'asunto' => 'Tarea nueva',
+            'contenido' => "Te asignaron la tarea: {$tarea->titulo}",
+            'id_remitente' => $request->id_creador,
+            'id_destinatario' => $request->id_asignado,
         ]);
 
         $rendimiento = Rendimiento::firstOrCreate(
@@ -338,7 +346,7 @@ class TareaController extends Controller
 
     public function tareasLider($id)
     {
-        $tareas = Tarea::where('id_asignado', $id)->where('estado', '!=', 'Hecho')->get();
+        $tareas = Tarea::where('id_asignado', $id)->orderBy('fecha_creacion','desc')->get();
 
         return response()->json([
             'status' => 'success',
